@@ -14,7 +14,7 @@ env/
 # Jupyter
 .ipynb_checkpoints/
 
-# Editors and operating systems
+# Editor and operating systems
 .vscode/
 .idea/
 .DS_Store
