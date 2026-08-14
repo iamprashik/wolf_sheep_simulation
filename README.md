@@ -67,8 +67,8 @@ These parameters make it possible to experiment with how different ecosystem con
 
 ## 🛠️ Technology
 
-- **Python**
-- **Mesa** — agent-based modelling and data collection
+- **Python 3.12+**
+- **Mesa 3.4.2** — agent-based modelling and data collection
 - **Solara** — interactive browser interface
 - **Matplotlib** — grid and population visualizations
 
@@ -150,7 +150,7 @@ wolf_sheep_simulation/
 
 ## ⚠️ Current Limitations
 
-- The project extends Mesa's bundled Wolf–Sheep example and depends on its internal example modules.
+- The project extends the Wolf–Sheep example bundled with Mesa 3.4.2 and depends on its example modules.
 - Farmer and Dog rules use fixed probabilities and durations.
 - Results are visualized interactively but are not currently exported for statistical analysis.
 - The model is intended for experimentation and education rather than real ecological forecasting.
