@@ -8,7 +8,6 @@ from mesa.visualization import (
     make_space_component,
 )
 from mesa.discrete_space import CellAgent
-import random
 
 ##############################################################
 # NEW AGENTS: Farmer and Dog
@@ -83,7 +82,7 @@ def wolf_step_patched(self):
             if not any(isinstance(a, Sheep) for a in cell.agents)
         ]
 
-        move_to = random.choice(safe_cells) if safe_cells else random.choice(neighborhood)
+        move_to = self.random.choice(safe_cells) if safe_cells else self.random.choice(neighborhood)
         self.move_to(move_to)
         return
 
