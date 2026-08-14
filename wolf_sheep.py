@@ -5,7 +5,6 @@ from mesa.visualization import (
     Slider,
     SolaraViz,
     make_plot_component,
-    make_space_component,
 )
 from mesa.discrete_space import CellAgent
 
@@ -67,30 +66,45 @@ class Dog(CellAgent):
 
 
 ###############################################################
-# PATCH WOLF BEHAVIOR TO AVOID SHEEP WHEN SCARED
+# PATCH WOLF MOVEMENT TO AVOID SHEEP WHEN SCARED
 ###############################################################
 
-def wolf_step_patched(self):
-    """Patch wolf to avoid sheep when scared."""
+# Remove the older full-step monkey patch if Solara reloads this module in an
+# already-running process. Wolf normally inherits step() from its base class.
+if "step" in Wolf.__dict__:
+    delattr(Wolf, "step")
+if hasattr(Wolf, "original_step"):
+    delattr(Wolf, "original_step")
 
-    if hasattr(self, "scared_timer") and self.scared_timer > 0:
+# Store Mesa's original movement method only once so repeated hot reloads do
+# not wrap an already patched function.
+if not hasattr(Wolf, "_original_move"):
+    Wolf._original_move = Wolf.move
+
+
+def wolf_move_patched(self):
+    """Move scared wolves away from sheep while preserving the normal step."""
+
+    if getattr(self, "scared_timer", 0) > 0:
         self.scared_timer -= 1
 
         neighborhood = list(self.cell.connections.values())
-        safe_cells = [
-            cell for cell in neighborhood
-            if not any(isinstance(a, Sheep) for a in cell.agents)
-        ]
+        if not neighborhood:
+            return
 
-        move_to = self.random.choice(safe_cells) if safe_cells else self.random.choice(neighborhood)
-        self.move_to(move_to)
+        safe_cells = [
+            cell
+            for cell in neighborhood
+            if not any(isinstance(agent, Sheep) for agent in cell.agents)
+        ]
+        target_cells = safe_cells if safe_cells else neighborhood
+        self.move_to(self.random.choice(target_cells))
         return
 
-    self.original_step()
+    self._original_move()
 
 
-Wolf.original_step = Wolf.step
-Wolf.step = wolf_step_patched
+Wolf.move = wolf_move_patched
 
 
 ###############################################################
@@ -134,8 +148,6 @@ class WolfSheepExtended(WolfSheep):
 import solara
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-from matplotlib.figure import Figure
-
 
 def make_custom_space(model):
     grid = model.grid
